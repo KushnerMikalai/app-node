@@ -6,6 +6,8 @@ import cors from 'cors';
 const app = express();
 
 app.use(cors());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 // async function demo() {
 //   console.log('Taking a break...');
 //   await sleep(2000);
