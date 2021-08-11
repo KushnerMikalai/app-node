@@ -1,43 +1,43 @@
-import 'dotenv/config';
-import express from 'express';
-import cors from 'cors';
-// import sleep from './sleep';
+import 'dotenv/config'
+import express from 'express'
+import cors from 'cors'
+import logger from 'morgan'
+import got from 'got'
+import cheerio from 'cheerio'
 
-const app = express();
+const app = express()
 
-app.use(cors());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-// async function demo() {
-//   console.log('Taking a break...');
-//   await sleep(2000);
-//   console.log('Two seconds later, showing sleep in a loop...');
+app.use(cors())
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(logger('dev'))
 
-//   for (let i = 0; i < 5; i++) {
-//     if (i === 3)
-//       await sleep(2000);
-//     console.log(i);
-//   }
-// }
-// demo();
+/**
+ * Currency Converter
+ * for example:
+ * curl -X GET -G http://localhost:3000/currency-converter -d from=usd -d to=byn -d amount=100
+ */
+app.get('/currency-converter', async (req, res) => {
+  const url = 'https://myfin.us/currency-converter'
+  const from = req.query.from || 'usd'
+  const to = req.query.to || 'usd'
+  const amount = req.query.amount || 1
 
+  try {
+    const response = await got(`${url}/${from}-${to}/${amount}`)
+    const $ = cheerio.load(response.body)
+    const currency = $('.conversion__value-text span:eq(1)').html()
 
-app.get('/', (req, res) => {
-  return res.send('Received a GET HTTP method');
+    return res.json(currency.trim())
+  } catch (e) {
+    return res.send('error')
+  }
 });
 
-app.post('/', (req, res) => {
-  return res.send('Received a POST HTTP method');
-});
-
-app.put('/', (req, res) => {
-  return res.send('Received a PUT HTTP method');
-});
-
-app.delete('/', (req, res) => {
-  return res.send('Received a DELETE HTTP method');
-});
+app.get('/', async (req, res) => {
+  return res.send('index')
+})
 
 app.listen(process.env.PORT, () =>
-  console.log(`Example app listening on port ${process.env.PORT}!`),
-);
+  console.log(`> PORT ${process.env.PORT}`),
+)
