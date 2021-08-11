@@ -28,7 +28,7 @@ app.get('/currency-converter', async (req, res) => {
     const $ = cheerio.load(response.body)
     const currency = $('.conversion__value-text span:eq(1)').html()
 
-    return res.json(currency.trim())
+    return res.json(currency ? currency.trim() : 'no element')
   } catch (e) {
     return res.send('error')
   }
